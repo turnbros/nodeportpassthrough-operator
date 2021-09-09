@@ -1,0 +1,20 @@
+# permissions for end users to view nodeportpassthroughs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nodeportpassthrough-viewer-role
+rules:
+- apiGroups:
+  - networking.turnbros.app
+  resources:
+  - nodeportpassthroughs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.turnbros.app
+  resources:
+  - nodeportpassthroughs/status
+  verbs:
+  - get

@@ -1,0 +1,59 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+  ##
+  ## Base operator rules
+  ##
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - pods
+      - pods/exec
+      - pods/log
+      - services # I think this one could get away with get/list/watch or list/patch/update/watch based on what I see here: https://github.com/onesolpark/cloud-provider-vsphere/blob/908eaa8e58bb2215a0927ce3f00350365706dd8b/manifests/controller-manager/cloud-controller-manager-roles.yaml
+      - services/status # As far as I can tell this one needs patch
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - daemonsets
+      - replicasets
+      - statefulsets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  ##
+  ## Rules for networking.turnbros.app/v1alpha1, Kind: NodePortPassthrough
+  ##
+  - apiGroups:
+      - networking.turnbros.app
+    resources:
+      - nodeportpassthroughs
+      - nodeportpassthroughs/status
+      - nodeportpassthroughs/finalizers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+#+kubebuilder:scaffold:rules

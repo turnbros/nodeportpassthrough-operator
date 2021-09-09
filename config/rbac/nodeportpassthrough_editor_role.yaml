@@ -1,0 +1,24 @@
+# permissions for end users to edit nodeportpassthroughs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nodeportpassthrough-editor-role
+rules:
+- apiGroups:
+  - networking.turnbros.app
+  resources:
+  - nodeportpassthroughs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.turnbros.app
+  resources:
+  - nodeportpassthroughs/status
+  verbs:
+  - get

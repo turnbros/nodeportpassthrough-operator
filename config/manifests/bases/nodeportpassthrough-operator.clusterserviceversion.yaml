@@ -1,0 +1,45 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: nodeportpassthrough-operator.v0.0.3
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions: {}
+  description: Creates a service that maps a nodeport to a container port to avoid
+    issues with PAT (Port Address Translation)
+  displayName: nodeportpassthrough-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - networking
+  - turnbros
+  - kuberneres
+  links:
+  - name: Nodeportpassthrough Operator
+    url: https://nodeportpassthrough-operator.domain
+  maintainers:
+  - email: dylanturn@gmail.com
+    name: Dylan Turnbull
+  maturity: alpha
+  provider:
+    name: Nodeportpassthrough
+    url: turnbros.app
+  version: 0.0.3

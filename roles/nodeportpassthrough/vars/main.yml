@@ -1,0 +1,4 @@
+---
+nodeport_query: "[].spec.ports[].nodePort"
+operator_config: "nodeportpassthrough-operator-manager-config"
+operator_namespace: "default"

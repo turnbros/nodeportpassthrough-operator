@@ -1,0 +1,42 @@
+---
+
+# Get the configmap the contains the valid port range
+# TODO: Find a way to make this dynamic. We shouldn't have to tell the operator what's valid if K8s already knows
+- name: Get the config data
+  set_fact:
+    operator_config_data: "{{ lookup('community.kubernetes.k8s', kind='ConfigMap', resource_name=operator_config, namespace=operator_namespace).data }}"
+
+# Parse the nodeport range start and end, then generate a list of valid port numbers
+# Also get a list of all the services in k8s, then use the jmespath query to filter it down to just used nodeports
+- name: Parse the config data
+  no_log: true
+  vars:
+    range_extents: "{{ (operator_config_data['controller_manager_config.yaml'] | from_yaml).cluster_nodeport_range }}"
+  set_fact:
+    cluster_nodeport_range: "{{ range(range_extents.start, range_extents.end + 1) | list }}"
+    cluster_service_nodeport_list: "{{ lookup('community.kubernetes.k8s', kind='Service') | json_query(nodeport_query) }}"
+
+# TODO: Add some error handling for when we run out of available ports.
+- name: Get a list of available node ports
+  no_log: true
+  set_fact:
+    available_node_ports: "{{ cluster_nodeport_range | difference(cluster_service_nodeport_list) }}"
+
+- name: Build a list of port objects that includes an available nodePort
+  ansible.builtin.set_fact:
+    reserved_ports: "{{ reserved_ports + reserved_port }}"
+  loop: "{{ ports }}"
+  loop_control:
+    index_var: idx
+  vars:
+    reserved_ports: []
+    reserved_port:
+    - name: "{{ ports[idx].name }}"
+      port: "{{ available_node_ports[idx] | int }}"
+      nodePort: "{{ available_node_ports[idx] | int }}"
+      protocol: "{{ ports[idx].protocol | upper }}"
+
+- name: Read definition template file from the Ansible controller file system
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/service.yml.j2') | from_yaml }}"
