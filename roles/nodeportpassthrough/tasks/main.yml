@@ -34,9 +34,26 @@
     - name: "{{ ports[idx].name }}"
       port: "{{ available_node_ports[idx] | int }}"
       nodePort: "{{ available_node_ports[idx] | int }}"
-      protocol: "{{ ports[idx].protocol | upper }}"
+      protocols: "{{ ports[idx].protocols | unique  }}"
+
+- name: "### Show labels ###"
+  debug:
+    var: labels
+
+- name: "### Show annotations ###"
+  debug:
+    var: annotations
+
+- name: "### Show selector ###"
+  debug:
+    var: selector
+
+- name: Show the template
+  debug:
+    msg: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
 
 - name: Read definition template file from the Ansible controller file system
   community.kubernetes.k8s:
     state: present
-    definition: "{{ lookup('template', 'templates/service.yml.j2') | from_yaml }}"
+    definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
+

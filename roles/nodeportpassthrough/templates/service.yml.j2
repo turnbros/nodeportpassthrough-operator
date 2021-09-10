@@ -1,23 +1,25 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ ansible_operator_meta.name }}"
-  namespace: "{{ ansible_operator_meta.namespace }}"
+  name: {{ ansible_operator_meta.name }}
+  namespace: {{ ansible_operator_meta.namespace }}
 {% if labels.keys()|length > 0 %}
-  labels: "{{ labels }}"
+  labels: {{ labels|from_yaml }}
 {% endif %}
 {% if annotations.keys()|length > 0 %}
-  annotations: "{{ annotations }}"
+  annotations: {{ annotations|from_yaml }}
 {% endif %}
 spec:
 {% if selector.keys()|length > 0 %}
-  selector: "{{ selector }}"
+  selector: {{ selector|from_yaml }}
 {% endif %}
   type: NodePort
   ports:
-  {% for item in reserved_ports %}
-- name: {{ item.name }}
-    nodePort: {{ item.nodePort|int }}
-    port: {{ item.port|int }}
-    protocol: {{ item.protocol|upper }}
-  {% endfor %}
+{% for port in reserved_ports %}
+{%- for protocol in port.protocols %}
+  - name: {{ port.name }}-{{ protocol|lower }}
+    nodePort: {{ port.nodePort|int }}
+    port: {{ port.port|int }}
+    protocol: {{ protocol|upper }}
+{% endfor %}
+{% endfor %}

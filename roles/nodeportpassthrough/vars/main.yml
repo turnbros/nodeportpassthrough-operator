@@ -1,4 +1,5 @@
 ---
 nodeport_query: "[].spec.ports[].nodePort"
+port_protocol_query: "[? name == `game`].protocol"
 operator_config: "nodeportpassthrough-operator-manager-config"
 operator_namespace: "default"

@@ -34,15 +34,15 @@ spec:
             type: object
             x-kubernetes-preserve-unknown-fields: true
             properties:
-              labels:
-                description: The labels that will be applied to the service
-                type: object
-              selector:
-                description: The selector that will be applied to the service
-                type: object
-              annotations:
-                description: The annotations that will be applied to the service
-                type: object
+#              labels:
+#                description: The labels that will be applied to the service
+#                type: object
+#              annotations:
+#                description: The annotations that will be applied to the service
+#                type: object
+#              selector:
+#                description: The selector that will be applied to the service
+#                type: object
               ports:
                 description: The names and protocols of ports that should be provisioned and mapped
                 type: array
@@ -50,19 +50,17 @@ spec:
                   type: object
                   required:
                     - name
-                    - protocol
+                    - protocols
                   properties:
                     name:
                       type: string
-                    protocol:
-                      description: The protocol this port will serve
-                      type: string
-                      enum:
-                        - tcp
-                        - TCP
-                        - udp
-                        - UDP
-
+                    protocols:
+                      description: The protocols to serve over the port
+                      type: array
+                      minItems: 1
+                      items:
+                        type: string
+                        enum: [ "tcp", "udp", "sctp" ]
           status:
             description: Status defines the observed state of NodePortPassthrough
             type: object
