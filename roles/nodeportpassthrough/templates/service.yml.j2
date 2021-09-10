@@ -14,12 +14,4 @@ spec:
   selector: {{ selector|from_yaml }}
 {% endif %}
   type: NodePort
-  ports:
-{% for port in reserved_ports %}
-{%- for protocol in port.protocols %}
-  - name: {{ port.name }}-{{ protocol|lower }}
-    nodePort: {{ port.nodePort|int }}
-    port: {{ port.port|int }}
-    protocol: {{ protocol|upper }}
-{% endfor %}
-{% endfor %}
+  ports: {{ service_ports|from_yaml }}

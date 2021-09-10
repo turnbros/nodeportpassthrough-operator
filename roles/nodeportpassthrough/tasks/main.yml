@@ -22,6 +22,13 @@
   set_fact:
     available_node_ports: "{{ cluster_nodeport_range | difference(cluster_service_nodeport_list) }}"
 
+- name: Get the existing service ports
+  when: existing_service != []
+  vars:
+    existing_service: "{{ lookup('community.kubernetes.k8s', kind='Service', namespace=ansible_operator_meta.namespace, resource_name=ansible_operator_meta.name) }}"
+  set_fact:
+    existing_service_ports: "{{ existing_service | json_query('spec.ports[]') | from_yaml | default(omit) }}"
+
 - name: Build a list of port objects that includes an available nodePort
   ansible.builtin.set_fact:
     reserved_ports: "{{ reserved_ports + reserved_port }}"
@@ -36,21 +43,22 @@
       nodePort: "{{ available_node_ports[idx] | int }}"
       protocols: "{{ ports[idx].protocols | unique  }}"
 
-- name: "### Show labels ###"
-  debug:
-    var: labels
-
-- name: "### Show annotations ###"
-  debug:
-    var: annotations
-
-- name: "### Show selector ###"
-  debug:
-    var: selector
-
-- name: Show the template
-  debug:
-    msg: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
+- set_fact:
+    service_ports: |
+      {% for port in reserved_ports %}
+      {%- for protocol in port.protocols %}
+      {% set port_name='%s-%s'|format(port.name,protocol|lower) %}
+      {% set nodeport_query="[? name == '%s'].nodePort"|format(port_name) %}
+      {% if existing_service_ports|default(false) %}
+      {% set existing_service_nodeport=existing_service_ports|json_query(nodeport_query)|first %}
+      {% endif %}
+        - name: {{ port_name }}
+          nodePort: {{ existing_service_nodeport|default(port.nodePort|int) }}
+          port: {{ existing_service_nodeport|default(port.nodePort|int) }}
+          protocol: {{ protocol|upper }}
+          targetPort: {{ existing_service_nodeport|default(port.nodePort|int) }}
+      {% endfor %}
+      {% endfor %}
 
 - name: Read definition template file from the Ansible controller file system
   community.kubernetes.k8s:

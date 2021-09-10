@@ -2,18 +2,13 @@ apiVersion: networking.turnbros.app/v1alpha1
 kind: NodePortPassthrough
 metadata:
   name: nodeportpassthrough-sample
-  labels:
-    foo-label1: bar-value1
-  annotations:
-    baz-key1: idk-value1
 spec:
-  unknown_field: "asdf"
   labels:
-    foo: bar
+    my-label: label-value
   annotations:
-    baz: value
+    turnbros.app/service-annotation: annotation-value
   selector:
-    app: service-backend1
+    app: service-backend2
   ports:
     - name: http
       protocols: ["tcp"]

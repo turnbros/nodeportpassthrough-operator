@@ -1,24 +1,23 @@
 ## A `NodePortPassthrough` like this
 ```yaml
-
 apiVersion: networking.turnbros.app/v1alpha1
 kind: NodePortPassthrough
 metadata:
   name: nodeportpassthrough-sample
-  labels:
-    foo-label: bar-value
-  annotations:
-    baz-key: idk-value
 spec:
+  labels:
+    my-label: label-value
+  annotations:
+    turnbros.app/service-annotation: annotation-value
   selector:
-    app: service-backend1
+    app: service-backend
   ports:
-  - name: http
-    protocols: ["tcp"]
-  - name: https
-    protocols: ["tcp"]
-  - name: game
-    protocols: ["tcp", "udp"]
+    - name: http
+      protocols: ["tcp"]
+    - name: https
+      protocols: ["tcp"]
+    - name: game
+      protocols: ["tcp", "udp"]
 ```
 
 ## Should produce a `Service` like this

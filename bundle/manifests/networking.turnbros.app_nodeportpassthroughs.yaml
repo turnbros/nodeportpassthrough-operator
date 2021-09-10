@@ -1,0 +1,74 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  creationTimestamp: null
+  name: nodeportpassthroughs.networking.turnbros.app
+spec:
+  group: networking.turnbros.app
+  names:
+    kind: NodePortPassthrough
+    listKind: NodePortPassthroughList
+    plural: nodeportpassthroughs
+    singular: nodeportpassthrough
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: NodePortPassthrough is the Schema for the nodeportpassthroughs
+          API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec defines the desired state of NodePortPassthrough
+            properties:
+              ports:
+                description: The names and protocols of ports that should be provisioned
+                  and mapped
+                items:
+                  properties:
+                    name:
+                      type: string
+                    protocols:
+                      description: The protocols to serve over the port
+                      items:
+                        enum:
+                        - tcp
+                        - udp
+                        - sctp
+                        type: string
+                      minItems: 1
+                      type: array
+                  required:
+                  - name
+                  - protocols
+                  type: object
+                type: array
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+          status:
+            description: Status defines the observed state of NodePortPassthrough
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: null
+  storedVersions: null

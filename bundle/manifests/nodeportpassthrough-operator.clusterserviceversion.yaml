@@ -1,0 +1,242 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "networking.turnbros.app/v1alpha1",
+          "kind": "NodePortPassthrough",
+          "metadata": {
+            "name": "nodeportpassthrough-sample"
+          },
+          "spec": {
+            "annotations": {
+              "turnbros.app/service-annotation": "annotation-value"
+            },
+            "labels": {
+              "my-label": "label-value"
+            },
+            "ports": [
+              {
+                "name": "http",
+                "protocols": [
+                  "tcp"
+                ]
+              },
+              {
+                "name": "https",
+                "protocols": [
+                  "tcp"
+                ]
+              },
+              {
+                "name": "game",
+                "protocols": [
+                  "tcp",
+                  "udp"
+                ]
+              }
+            ],
+            "selector": {
+              "app": "service-backend2"
+            }
+          }
+        }
+      ]
+    capabilities: Basic Install
+    operators.operatorframework.io/builder: operator-sdk-v1.11.0
+    operators.operatorframework.io/project_layout: ansible.sdk.operatorframework.io/v1
+  name: nodeportpassthrough-operator.v0.0.3
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - kind: NodePortPassthrough
+      name: nodeportpassthroughs.networking.turnbros.app
+      version: v1alpha1
+  description: Creates a service that maps a nodeport to a container port to avoid
+    issues with PAT (Port Address Translation)
+  displayName: nodeportpassthrough-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          - pods
+          - pods/exec
+          - pods/log
+          - services
+          - services/status
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - networking.turnbros.app
+          resources:
+          - nodeportpassthroughs
+          - nodeportpassthroughs/status
+          - nodeportpassthroughs/finalizers
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: nodeportpassthrough-operator-controller-manager
+      deployments:
+      - name: nodeportpassthrough-operator-controller-manager
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              control-plane: controller-manager
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                control-plane: controller-manager
+            spec:
+              containers:
+              - args:
+                - --secure-listen-address=0.0.0.0:8443
+                - --upstream=http://127.0.0.1:8080/
+                - --logtostderr=true
+                - --v=10
+                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
+                name: kube-rbac-proxy
+                ports:
+                - containerPort: 8443
+                  name: https
+                  protocol: TCP
+                resources: {}
+              - args:
+                - --health-probe-bind-address=:6789
+                - --metrics-bind-address=127.0.0.1:8080
+                - --leader-elect
+                - --leader-election-id=nodeportpassthrough-operator
+                env:
+                - name: ANSIBLE_GATHERING
+                  value: explicit
+                image: ghcr.io/turnbros/nodeportpassthrough-operator/operator-controller:v0.0.3
+                imagePullPolicy: Always
+                livenessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: 6789
+                  initialDelaySeconds: 15
+                  periodSeconds: 20
+                name: manager
+                readinessProbe:
+                  httpGet:
+                    path: /readyz
+                    port: 6789
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                resources: {}
+                securityContext:
+                  allowPrivilegeEscalation: false
+              securityContext:
+                runAsNonRoot: true
+              serviceAccountName: nodeportpassthrough-operator-controller-manager
+              terminationGracePeriodSeconds: 10
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        serviceAccountName: nodeportpassthrough-operator-controller-manager
+    strategy: deployment
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - networking
+  - turnbros
+  - kuberneres
+  links:
+  - name: Nodeportpassthrough Operator
+    url: https://nodeportpassthrough-operator.domain
+  maintainers:
+  - email: dylanturn@gmail.com
+    name: Dylan Turnbull
+  maturity: alpha
+  provider:
+    name: Nodeportpassthrough
+    url: turnbros.app
+  version: 0.0.3
