@@ -33,6 +33,14 @@ spec:
           spec:
             description: Spec defines the desired state of NodePortPassthrough
             properties:
+              annotations:
+                description: The annotations that will be applied to the service
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              labels:
+                description: The labels that will be applied to the service
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
               ports:
                 description: The names and protocols of ports that should be provisioned
                   and mapped
@@ -55,6 +63,10 @@ spec:
                   - protocols
                   type: object
                 type: array
+              selector:
+                description: The selector that will be applied to the service
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
             type: object
             x-kubernetes-preserve-unknown-fields: true
           status:

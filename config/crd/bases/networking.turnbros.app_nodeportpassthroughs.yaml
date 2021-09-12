@@ -34,15 +34,18 @@ spec:
             type: object
             x-kubernetes-preserve-unknown-fields: true
             properties:
-#              labels:
-#                description: The labels that will be applied to the service
-#                type: object
-#              annotations:
-#                description: The annotations that will be applied to the service
-#                type: object
-#              selector:
-#                description: The selector that will be applied to the service
-#                type: object
+              labels:
+                description: The labels that will be applied to the service
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              annotations:
+                description: The annotations that will be applied to the service
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              selector:
+                description: The selector that will be applied to the service
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
               ports:
                 description: The names and protocols of ports that should be provisioned and mapped
                 type: array
